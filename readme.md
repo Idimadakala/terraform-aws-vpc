@@ -10,7 +10,12 @@
     ii. resource "aws_route"
         1. add Internet as a route through IGW
     iii. resource "aws_route_table_associate"
-4. create a route table, route and associate it with private subnet
+5. create a route table, route and associate it with private subnet
+    i. resource "aws_route_table"
+    ii. resource "aws_route"
+        1. add NAT gateway for Internet
+    iii. resource "aws_route_table_associate"
+6. create a route table, route and associate it with database subnet
     i. resource "aws_route_table"
     ii. resource "aws_route"
         1. add NAT gateway for Internet

@@ -32,10 +32,9 @@ resource "aws_subnet" "public_subnet" {
   count = length(var.public_subnet_cidrs)
   vpc_id     = aws_vpc.main.id
   cidr_block = var.public_subnet_cidrs[count.index]
-  
   availability_zone = local.az_names[count.index]
+  # assign public ip while launching the instance
   map_public_ip_on_launch = true
-
   tags = merge(var.public_subnet_tags,
   local.common_tags,
   {
@@ -52,10 +51,8 @@ resource "aws_subnet" "private_subnet" {
   count = length(var.private_subnet_cidrs)
   vpc_id     = aws_vpc.main.id
   cidr_block = var.private_subnet_cidrs[count.index]
-  
   availability_zone = local.az_names[count.index]
   #map_public_ip_on_launch = true
-
   tags = merge(var.private_subnet_tags,
   local.common_tags,
   {
@@ -67,15 +64,12 @@ resource "aws_subnet" "private_subnet" {
 # two database subnet in us-east-1a, us-east-1b
 # roboshop-dev-database-us-east-1a
 # roboshop-dev-database-us-east-1b
-
 resource "aws_subnet" "database_subnet" {
   count = length(var.database_subnet_cidrs)
   vpc_id     = aws_vpc.main.id
   cidr_block = var.database_subnet_cidrs[count.index]
-  
   availability_zone = local.az_names[count.index]
   #map_public_ip_on_launch = true
-
   tags = merge(var.database_subnet_tags,
   local.common_tags,
   {
@@ -99,10 +93,10 @@ resource "aws_eip" "eip" {
 
 # network address translation
 # aws_nat_gateway: provides a resource to create NAT gateway for vpc
+# NAT allows outgoing traffic and reside in public subnet
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.eip.id
   subnet_id     = aws_subnet.public_subnet[0].id
-
   tags = merge(var.nat_tags,
   local.common_tags,
     {
@@ -118,10 +112,8 @@ resource "aws_nat_gateway" "nat" {
 # create aws_route_table for public subnet
 # create aws_route for destination and target
 # associate route_table with subnet
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
-
   tags = merge(
     var.public_route_table_tags,
     local.common_tags,
@@ -169,10 +161,8 @@ resource "aws_route_table_association" "private" {
 }
 
 # create route_table, routes, associate it with subnet
-
 resource "aws_route_table" "database" {
   vpc_id = aws_vpc.main.id
-
   tags = merge(
     var.database_route_table_tags,
     local.common_tags,
